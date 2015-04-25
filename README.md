@@ -211,7 +211,7 @@
 ```json
     {
         "operation":"get_rsa_public_key",
-        "rsa_public_key":
+        "rsa_public_key":"xxxxxx",
         "error_code":"XXX",
         "error_message":"xxxxxxxx",
         "timestamp":"xxxxxx"
