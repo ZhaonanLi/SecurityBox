@@ -257,7 +257,7 @@
 ##### Server database scheme:
 
 [1] User:
-```json
+```sql
 CREATE TABLE User (
     username VARCHAR(70) NOT NULL PRIMARY KEY,
     password_hash VARCHAR(100) NOT NULL,
@@ -266,7 +266,7 @@ CREATE TABLE User (
 )ENGINE=INNODB;
 ```
 [2] Session:
-```json
+```sql
 CREATE TABLE Session (
     username VARCHAR(70) NOT NULL,
     login_date DATE NOT NULL,
