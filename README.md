@@ -290,6 +290,8 @@ Library:
     [4] Qt 5.4
 Network:
     [1] Protocol: TCP.
+    [2] IP Version: IPv4.
+    [3] Port number: 10000-20000.
 ```
 
 
