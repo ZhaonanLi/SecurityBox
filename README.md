@@ -66,7 +66,7 @@
         "original_filename":"xxxxxx",
         "new_filename":"xxxxxx"
     }
-```json
+```
 
 [7] upload:
 ```json
@@ -76,7 +76,7 @@
         "filename":"xxxxxx",
         "encrypted_file":"The content of the encrypted file data."
     }
-```json
+```
 
 [8] download:
 ```json
