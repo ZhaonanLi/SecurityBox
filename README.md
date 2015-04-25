@@ -284,10 +284,10 @@ CREATE TABLE Session (
 ```json
 Language:C++11
 Library: 
-    [a] STL
-    [b] Boost
-    [c] Crypto++
-    [d] Qt 5.4
+    [1] STL
+    [2] Boost
+    [3] Crypto++
+    [4] Qt 5.4
 ```
 
 
@@ -297,7 +297,7 @@ Asymmetric encryption scheme: RSA.
 symmetric encryption scheme: RC4.
 Hash: SHA3.
 Digital Signature: DSA.
-Timestamp: Time-Server: 200.20.186.76 [C++ example here][time_server_example]
+Timestamp: Time-Server: 200.20.186.76 
 ```
+[Time server request C++ example here](http://stackoverflow.com/questions/9326677/is-there-any-c-c-library-to-connect-with-a-remote-ntp-server/19835285#19835285)
 
-[time_server_example]:http://stackoverflow.com/questions/9326677/is-there-any-c-c-library-to-connect-with-a-remote-ntp-server/19835285#19835285 "C++ example here"
