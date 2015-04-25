@@ -11,6 +11,7 @@
 [6] rename
 [7] upload
 [8] download
+[9] get_rsa_public_key
 ```
 
 ##### Request json format(Client --> Server):
@@ -20,7 +21,8 @@
     {
         "operation":"signup",
         "username":"xxx@xxx",
-        "password_hash":"xxxxxxxx"
+        "password_hash":"xxxxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -29,7 +31,8 @@
     {
         "operation":"login",
         "username":"xxx@xxx",
-        "password_hash":"xxxxxxxx"
+        "password_hash":"xxxxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -37,7 +40,8 @@
 ```json
     {
         "operation":"logout",
-        "username":"xxx@xxx"
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -45,7 +49,8 @@
 ```json
     {
         "operation":"list",
-        "username":"xxx@xxx"
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -54,7 +59,8 @@
     {
         "operation":"remove",
         "username":"xxx@xxx",
-        "filename":"xxxxxxx"
+        "filename":"xxxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -64,7 +70,8 @@
         "operation":"rename",
         "username":"xxx@xxx",
         "original_filename":"xxxxxx",
-        "new_filename":"xxxxxx"
+        "new_filename":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -74,7 +81,8 @@
         "operation":"upload",
         "username":"xxx@xxx",
         "filename":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data."
+        "encrypted_file":"The content of the encrypted file data.",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -83,7 +91,17 @@
     {
         "operation":"download",
         "username":"xxx@xxx",
-        "filename":"xxxxxxx"
+        "client_rsa_public_key":"xxxxxx",
+        "filename":"xxxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[9] get_rsa_public_key:(This operation is sent by plaintext)
+```json
+    {
+        "operation":"get_rsa_public_key",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -95,7 +113,8 @@
         "operation":"signup",
         "username":"xxx@xxx",
         "error_code":"XXX",
-        "error_message":"xxxxxx"
+        "error_message":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -105,7 +124,8 @@
         "operation":"login",
         "username":"xxx@xxx",
         "error_code":"XXX",
-        "error_message":"xxxxxx"
+        "error_message":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -115,7 +135,8 @@
         "operation":"logout",
         "username":"xxx@xxx",
         "error_code":"XXX",
-        "error_message":"xxxxxx"
+        "error_message":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -130,7 +151,8 @@
             "xxxxxx",
             "xxxxxx",
             "xxxxxx"
-        ]
+        ],
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -141,7 +163,8 @@
         "username":"xxx@xxx",
         "error_code":"XXX",
         "error_message":"xxxxx",
-        "removed_filename":"xxxxxx"
+        "removed_filename":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -153,7 +176,8 @@
         "error_code":"XXX",
         "error_message":"xxxxxx",
         "original_filename":"xxxxxx",
-        "new_filename":"xxxxxx"
+        "new_filename":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -165,7 +189,8 @@
         "error_code":"XXX",
         "error_message":"xxxxxx",
         "filename":"xxxxxx",
-        "filesize":"xxxxxx"
+        "filesize":"xxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -177,7 +202,19 @@
         "error_code":"XXX",
         "error_message":"xxxxxx",
         "filename":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data."
+        "encrypted_file":"The content of the encrypted file data.",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[9] get_rsa_public_key:(This operation is sent by plaintext)
+```json
+    {
+        "operation":"get_rsa_public_key",
+        "rsa_public_key":
+        "error_code":"XXX",
+        "error_message":"xxxxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
@@ -197,48 +234,30 @@
 [12] "11": cannot rename file.
 [13] "12": filename conflict.
 [14] "13": cannot upload file.
-[15] "14": unkown error.
+[15] "14": cannot answer rsa_public_key.
+[16] "15": unknown error.
 ```
 
 
 ##### Security json format:
 ###### Request json format(Client --> Server):
 
-[1] Outer layer:
 ```json
     {
         "HMAC":"xxxxxx",
-        "RSA_encrypted_package":"xxxxxx"
-    }
-```
-[2] Inner layer(package):
-```json
-    {
-        "message":"message json",
+        "signature":"xxxxxx",
         "DSA_public_key":"xxxxxx",
-        "DSA_signature":"xxxxxxx",
-        "timestamp":"xxxxxxxxxxx"
+        "RSA_encrypted_package":"xxxxxxxxxx"
     }
 ```
 ###### Response json format(Server --> Client):
 
-[1] Outer layer:
 ```json
     {
         "HMAC":"xxxxxxx",
+        "signature":"xxxxx",
+        "DSA_public_key":"xxxxxx",
         "RSA_encrypted_package":"xxxxxx"
-    }
-```
-
-[2] Inner layer(package):
-```json
-    {
-        "message":"message_json",
-        "DSA_pubic_key":"xxxxxx",
-        "DSA_signuature":"xxxxx",
-        "timestamp":"xxxxxxxxxx",
-        "security_error_code":"XXX",
-        "security_error_message":"xxxxxx"
     }
 ```
 
@@ -246,10 +265,10 @@
 ##### security_error_code:
 ```json
 [1] "0": no error.
-[2] "1": RSA decrypt error.
-[3] "2": HMAC does not match.
-[4] "3": timestamp does not satisfy. 
-[5] "4": signature does not match.
+[2] "1": HMAC does not match.
+[3] "2": signature does not match.
+[4] "3": RSA decrypt error.
+[5] "4": timestamp does not satisfy. 
 [6] "5": unknown error.
 ```
 
@@ -292,6 +311,9 @@ Network:
     [1] Protocol: TCP.
     [2] IP Version: IPv4.
     [3] Port number: 10000-20000.
+Database:
+    [1] Server: MySQL.
+    [2] Client: SQLite.
 ```
 
 
