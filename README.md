@@ -1,276 +1,418 @@
 ## SecurityBox
 ### Security Cloud File Storage System.
 
+##### System:
+```json
+Language:
+    [1] C++11
+    [2] PHP 5.4
+Framework:
+    [1] Codeigniter(PHP)
+Library: 
+    [1] STL
+    [2] Boost
+    [3] Crypto++
+    [4] Qt 5.4
+Network:
+    [1] Protocol: HTTP1.1.
+    [2] IP Version: IPv4.
+HTTP Server:
+    [1] Apache
+Database:
+    [1] Server: MySQL.
+Time-Server: 
+    [1] Host: NTP
+    [2] PORT: 123
+```
+
+##### Security Algorithms:
+```json
+[1] Asymmetric encryption scheme: RSA.
+[2] symmetric encryption scheme: RC4.
+[3] Hash: SHA-3.
+[4] Digital Signature: DSA.
+```
+
 ##### Operation:
 ```json
-[1] signup
-[2] login
-[3] logout
-[4] list
-[5] remove
-[6] rename
-[7] upload
-[8] download
-[9] get_rsa_public_key
+[1] get server rsa public key
+[2] upload client rsa public key
+[3] get symmetric key
+[4] signup
+[5] login
+[6] logout
+[7] list
+[8] remove
+[9] rename
+[10] get file encrypt nonce
+[11] upload file
+[12] download file
 ```
 
-##### Request json format(Client --> Server):
-
-[1] signup:
-```json
-    {
-        "operation":"signup",
-        "username":"xxx@xxx",
-        "password_hash":"xxxxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[2] login:
-```json
-    {
-        "operation":"login",
-        "username":"xxx@xxx",
-        "password_hash":"xxxxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[3] logout:
-```json
-    {
-        "operation":"logout",
-        "username":"xxx@xxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[4] list:
-```json
-    {
-        "operation":"list",
-        "username":"xxx@xxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[5] remove:
-```json
-    {
-        "operation":"remove",
-        "username":"xxx@xxx",
-        "filename":"xxxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[6] rename:
-```json
-    {
-        "operation":"rename",
-        "username":"xxx@xxx",
-        "original_filename":"xxxxxx",
-        "new_filename":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[7] upload:
-```json
-    {
-        "operation":"upload",
-        "username":"xxx@xxx",
-        "filename":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data.",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[8] download:
-```json
-    {
-        "operation":"download",
-        "username":"xxx@xxx",
-        "client_rsa_public_key":"xxxxxx",
-        "filename":"xxxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[9] get_rsa_public_key:(This operation is sent by plaintext)
-```json
-    {
-        "operation":"get_rsa_public_key",
-        "timestamp":"xxxxxx"
-    }
-```
-
-##### Response json format(Server --> Client):
-
-[1] signup:
-```json
-    {
-        "operation":"signup",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[2] login:
-```json
-    {
-        "operation":"login",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[3] logout:
-```json
-    {
-        "operation":"logout",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[4] list:
-```json
-    {
-        "operation":"list",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "filename_list":[
-            "xxxxxx",
-            "xxxxxx",
-            "xxxxxx"
-        ],
-        "timestamp":"xxxxxx"
-    }
-```
-
-[5] remove:
-```json
-    {
-        "operation":"remove",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxx",
-        "removed_filename":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[6] rename:
-```json
-    {
-        "operation":"rename",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "original_filename":"xxxxxx",
-        "new_filename":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[7] upload:
-```json
-    {
-        "operation":"upload",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "filename":"xxxxxx",
-        "filesize":"xxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[8] download:
-```json
-    {
-        "operation":"download",
-        "username":"xxx@xxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx",
-        "filename":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data.",
-        "timestamp":"xxxxxx"
-    }
-```
-
-[9] get_rsa_public_key:(This operation is sent by plaintext)
-```json
-    {
-        "operation":"get_rsa_public_key",
-        "rsa_public_key":"xxxxxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxxxx",
-        "timestamp":"xxxxxx"
-    }
-```
-
-##### error_code(type = string):
-```json
-[1] "0": no error(success).
-[2] "1": username conflict(username has been used). 
-[3] "2": cannot create user folder.
-[4] "3": cannot find username(this user has not been registered).
-[5] "4": password and username do not match.
-[6] "5": you have been login.
-[7] "6": cannot logout.
-[8] "7": you have been logout.
-[9] "8": cannot retrieve filename list.
-[10] "9": cannot find file.
-[11] "10": cannot remove file.
-[12] "11": cannot rename file.
-[13] "12": filename conflict.
-[14] "13": cannot upload file.
-[15] "14": cannot answer rsa_public_key.
-[16] "15": unknown error.
-```
-
-
-##### Security json format:
+##### Security package format:
 ###### Request json format(Client --> Server):
 
+Asymmetric Encryption:
+```json
+    {
+        "HMAC":"xxxxxxx",
+        "signature":"xxxxxxxx",
+        "DSA_public_key":"xxxxxxx",
+        "rsa_encrypted_package":"xxxxxx"
+    }
+```
+
+Symmetric Encryption:
 ```json
     {
         "HMAC":"xxxxxx",
         "signature":"xxxxxx",
         "DSA_public_key":"xxxxxx",
-        "RSA_encrypted_package":"xxxxxxxxxx"
+        "symmetric_encrypted_package":"xxxxxxxxxx"
     }
 ```
+
 ###### Response json format(Server --> Client):
 
+Asymmetric Encryption:
+```json
+    {
+        "HMAC":"xxxxxxx",
+        "signature":"xxxxxxxx",
+        "DSA_public_key":"xxxxxxx",
+        "rsa_encrypted_package":"xxxxxx",
+        "security_error_code":"XXX",
+        "security_error_message":"xxxxxxx"
+    }
+```
+
+Symmetric Encryption:
 ```json
     {
         "HMAC":"xxxxxxx",
         "signature":"xxxxx",
         "DSA_public_key":"xxxxxx",
-        "RSA_encrypted_package":"xxxxxx"
+        "symmetric_encrypted_package":"xxxxxx",
+        "security_error_code":"XXX",
+        "security_error_message":"xxxxxxx"
+    }
+```
+
+##### security_error_code --> security_error_message:
+
+* "0": no error.
+* "1": HMAC does not match.
+* "2": signature does not match.
+* "3": decrypt error.
+* "4": timestamp does not satisfy. 
+* "5": unknown error.
+
+
+##### Message package format:
+###### Request format(Client --> Server):
+`All URL based on RESTful API Rules`
+
+[1] get server rsa public key:
+```json
+    URL: http://xxxxxx.com/index.php/server_rsa_public_key
+    
+    JSON:
+    {
+        "timestamp":"xxxxxxx"
+    }
+```
+
+[2] upload client rsa public key:
+
+```json
+    URL: http://xxxxxx.com/index.php/upload_client_rsa_public_key_service
+    
+    JSON:
+    {
+        "client_rsa_public_key":"xxxxxxx",
+        "timestamp":"xxxxxxx"
+    }
+```
+
+[3] get symmetric key:
+
+```json
+    URL: http://xxxxxx.com/index.php/symmetric_key
+    
+    JSON:
+    {
+        "timestamp":"xxxxxxx"
+    }
+```
+
+[4] signup:
+```json
+    URL: http://xxxxxx.com/index.php/signup_service
+    
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "password_hash":"xxxxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[5] login:
+```json
+    URL: http://xxxxxx.com/index.php/login_service
+    
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "password_hash":"xxxxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[6] logout:
+```json
+    URL: http://xxxxxx.com/index.php/logout_service
+
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[7] list:
+```json
+    URL: http://xxxxxx.com/index.php/list_service
+    
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[8] remove:
+```json
+    URL: http://xxxxxx.com/index.php/remove_service
+
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[9] rename:
+```json
+    URL: http://xxxxxx.com/index.php/rename_service
+
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "original_filename":"xxxxxx",
+        "new_filename":"xxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[10] get file encrypt nonce:
+```json
+    URL: http://xxxxxx.com/index.php/file_encrypt_nonce
+    
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxxx",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[11] upload file:
+```json
+    URL: http://xxxxxx.com/index.php/upload_file_service
+
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxx",
+        "encrypted_file":"The content of the encrypted file data.",
+        "timestamp":"xxxxxx"
+    }
+```
+
+[12] download file:
+```json
+    URL: http://xxxxxx.com/index.php/file
+
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxxx",
+        "timestamp":"xxxxxx"
     }
 ```
 
 
-##### security_error_code:
+
+###### Response json format(Server --> Client):
+
+[1] get server rsa public key:
 ```json
-[1] "0": no error.
-[2] "1": HMAC does not match.
-[3] "2": signature does not match.
-[4] "3": RSA decrypt error.
-[5] "4": timestamp does not satisfy. 
-[6] "5": unknown error.
+    {
+        "server_rsa_public_key":"xxxxxx",
+        "timestamp":"xxxxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
 ```
+
+[2] upload client rsa public key:
+```json
+    {
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxxx"
+    }
+```
+
+[3] get symmetric key:
+```json
+    {
+        "symmetric_key":"xxxxxxx",
+        "timestamp":"xxxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxxx"
+    }
+```
+
+[4] signup:
+```json
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[5] login:
+```json
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[6] logout:
+```json
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[7] list:
+```json
+    {
+        "username":"xxx@xxx",
+        "filename_list":[
+            "xxxxxx",
+            "xxxxxx",
+            "xxxxxx"
+        ],
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[8] remove:
+```json
+    {
+        "username":"xxx@xxx",
+        "removed_filename":"xxxxxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxx"
+    }
+```
+
+[9] rename:
+```json
+    {
+        "username":"xxx@xxx",
+        "original_filename":"xxxxxx",
+        "new_filename":"xxxxxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[10] get file encrypt nonce:
+```json
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxxx",
+        "file_encrypt_nonce":"xxxxxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxxx"
+    }
+```
+
+[11] upload file:
+```json
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxx",
+        "filesize":"xxxxxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[12] download file:
+```json
+    {
+        "username":"xxx@xxx",
+        "filename":"xxxxxx",
+        "filesize":"xxxxxx",
+        "encrypted_file":"The content of the encrypted file data.",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+
+##### error_code(type = string) --> error_message(type = string):
+
+* "0": no error.
+* "1": server cannot answer server's rsa public key.
+* "2": server cannot get client rsa public key.
+* "3": server cannot answer symmetric key.
+* "4": username conflict.
+* "5": server cannot create user folder.
+* "6": server cannot register user info into db.
+* "7": server cannot find username.
+* "8": password_hash and username do not match.
+* "9": you have been login.
+* "10": cannot logout.
+* "11": you have been logout.
+* "12": server cannot retrieve filename list.
+* "13": server cannot find file based on given username and filename.
+* "14": server cannot remove file.
+* "15": filename conflict.
+* "16": server cannot rename file.
+* "17": server cannot retrieve file encrypt nonce based on given username and filename.
+* "18": unknown error.
+
+
 
 
 ##### Server database scheme:
@@ -297,33 +439,15 @@ CREATE TABLE Session (
 )ENGINE=INNODB;
 ```
 
-
-
-##### System:
-```json
-Language:C++11
-Library: 
-    [1] STL
-    [2] Boost
-    [3] Crypto++
-    [4] Qt 5.4
-Network:
-    [1] Protocol: TCP.
-    [2] IP Version: IPv4.
-    [3] Port number: 10000-20000.
-Database:
-    [1] Server: MySQL.
-    [2] Client: SQLite.
+[3] File:
+```sql
+CREATE TABLE File (
+    username VARCHAR(70) NOT NULL,
+    filename VARCHAR(100) NOT NULL,
+    encrypt_nonce VARCHAR(100) NOT NULL,
+    modified_date DATE NOT NULL,
+    modified_time TIME NOT NULL,
+    PRIMARY KEY(username, filename),
+    FOREIGIN KEY(username) REFERENCES User(username)
+)ENGINE=INNODB;
 ```
-
-
-##### Security:
-```json
-Asymmetric encryption scheme: RSA.
-symmetric encryption scheme: RC4.
-Hash: SHA3.
-Digital Signature: DSA.
-Timestamp: Time-Server: 200.20.186.76 
-```
-[Time server request C++ example here](http://stackoverflow.com/questions/9326677/is-there-any-c-c-library-to-connect-with-a-remote-ntp-server/19835285#19835285)
-
