@@ -15,7 +15,7 @@ Network:
     [1] Protocol: HTTP1.1.
     [2] IP Version: IPv4.
 HTTP Server:
-    [1] Apache
+    [1] Apache2
 Database:
     [1] Server: MySQL.
 Time-Server: 
