@@ -6,8 +6,6 @@
 Language:
     [1] C++11
     [2] PHP 5.4
-Framework:
-    [1] Codeigniter(PHP)
 Library: 
     [1] STL
     [2] Boost
@@ -114,7 +112,7 @@ Symmetric Encryption:
 
 [1] get server rsa public key:
 ```json
-    URL: http://xxxxxx.com/index.php/server_rsa_public_key
+    URL: http://hostname:port_num/server_rsa_public_key.php
     
     JSON:
     {
@@ -125,7 +123,7 @@ Symmetric Encryption:
 [2] upload client rsa public key:
 
 ```json
-    URL: http://xxxxxx.com/index.php/upload_client_rsa_public_key_service
+    URL: http://hostname:port_num/upload_client_rsa_public_key_service.php
     
     JSON:
     {
@@ -137,7 +135,7 @@ Symmetric Encryption:
 [3] get symmetric key:
 
 ```json
-    URL: http://xxxxxx.com/index.php/symmetric_key
+    URL: http://hostname:port_num/symmetric_key.php
     
     JSON:
     {
@@ -147,7 +145,7 @@ Symmetric Encryption:
 
 [4] signup:
 ```json
-    URL: http://xxxxxx.com/index.php/signup_service
+    URL: http://hostname:port_num/signup_service.php
     
     JSON:
     {
@@ -159,7 +157,7 @@ Symmetric Encryption:
 
 [5] login:
 ```json
-    URL: http://xxxxxx.com/index.php/login_service
+    URL: http://hostname:port_num/login_service.php
     
     JSON:
     {
@@ -171,7 +169,7 @@ Symmetric Encryption:
 
 [6] logout:
 ```json
-    URL: http://xxxxxx.com/index.php/logout_service
+    URL: http://hostname:port_num/logout_service.php
 
     JSON:
     {
@@ -182,7 +180,7 @@ Symmetric Encryption:
 
 [7] list:
 ```json
-    URL: http://xxxxxx.com/index.php/list_service
+    URL: http://hostname:port_num/list_service.php
     
     JSON:
     {
@@ -193,7 +191,7 @@ Symmetric Encryption:
 
 [8] remove:
 ```json
-    URL: http://xxxxxx.com/index.php/remove_service
+    URL: http://hostname:port_num/remove_service.php
 
     JSON:
     {
@@ -205,7 +203,7 @@ Symmetric Encryption:
 
 [9] rename:
 ```json
-    URL: http://xxxxxx.com/index.php/rename_service
+    URL: http://hostname:port_num/rename_service.php
 
     JSON:
     {
@@ -218,7 +216,7 @@ Symmetric Encryption:
 
 [10] get file encrypt nonce:
 ```json
-    URL: http://xxxxxx.com/index.php/file_encrypt_nonce
+    URL: http://hostname:port_num/file_encrypt_nonce.php
     
     JSON:
     {
@@ -230,7 +228,7 @@ Symmetric Encryption:
 
 [11] upload file:
 ```json
-    URL: http://xxxxxx.com/index.php/upload_file_service
+    URL: http://hostname:port_num/upload_file_service.php
 
     {
         "username":"xxx@xxx",
@@ -242,7 +240,7 @@ Symmetric Encryption:
 
 [12] download file:
 ```json
-    URL: http://xxxxxx.com/index.php/file
+    URL: http://hostname:port_num/file.php
 
     {
         "username":"xxx@xxx",
