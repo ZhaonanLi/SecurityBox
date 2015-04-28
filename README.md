@@ -26,25 +26,29 @@ Time-Server:
 ##### Security Algorithms:
 ```json
 [1] Asymmetric encryption scheme: RSA.
-[2] symmetric encryption scheme: RC4.
+[2] symmetric encryption scheme: AES.
 [3] Hash: SHA-3.
 [4] Digital Signature: DSA.
 ```
 
+##### Security Arguments:
+```json
+[1] Symmetric encryption nonce: length = 256.
+````
+
 ##### Operation:
 ```json
-[1] get server rsa public key
-[2] upload client rsa public key
-[3] get symmetric key
-[4] signup
-[5] login
-[6] logout
-[7] list
-[8] remove
-[9] rename
-[10] get file encrypt nonce
-[11] upload file
-[12] download file
+[1] query server rsa public key
+[2] signup
+[3] login
+[4] logout
+[5] list
+[6] remove
+[7] rename
+[8] generate file encrypt nonce
+[9] query file encrypt nonce
+[10] upload file
+[11] download file
 ```
 
 ##### Security package format:
@@ -66,7 +70,9 @@ Symmetric Encryption:
         "HMAC":"xxxxxx",
         "signature":"xxxxxx",
         "DSA_public_key":"xxxxxx",
-        "symmetric_encrypted_package":"xxxxxxxxxx"
+        "symmetric_encrypted_operation_package":"xxxxxxxxxx",
+        "symmetric_encrypted_file":"[optional]xxxxxxxxx",
+        "session_id":"xxxxxxxx"
     }
 ```
 
@@ -90,7 +96,8 @@ Symmetric Encryption:
         "HMAC":"xxxxxxx",
         "signature":"xxxxx",
         "DSA_public_key":"xxxxxx",
-        "symmetric_encrypted_package":"xxxxxx",
+        "symmetric_encrypted_operation_package":"xxxxxx",
+        "symmetric_encrypted_file":"[optional]xxxxxxxx"
         "security_error_code":"XXX",
         "security_error_message":"xxxxxxx"
     }
@@ -106,13 +113,15 @@ Symmetric Encryption:
 * "5": unknown error.
 
 
-##### Message package format:
+##### Operation package format:
 ###### Request format(Client --> Server):
 `All URL based on RESTful API Rules`
 
-[1] get server rsa public key:
+[1] query server rsa public key:`[plaintext transmission]`
+
+    Note: This operation should be executed before all other operations.
 ```json
-    URL: http://hostname:port_num/server_rsa_public_key.php
+    URL: http://hostname:port_num/security_box_api/server_rsa_public_key.php
     
     JSON:
     {
@@ -120,32 +129,12 @@ Symmetric Encryption:
     }
 ```
 
-[2] upload client rsa public key:
+[2] signup:`[plaintext transmission]`
 
+    Note: The operation "signup" does not include "login" behavior,
+          which means, after "signup", user should execute "login" operation to access account.
 ```json
-    URL: http://hostname:port_num/upload_client_rsa_public_key_service.php
-    
-    JSON:
-    {
-        "client_rsa_public_key":"xxxxxxx",
-        "timestamp":"xxxxxxx"
-    }
-```
-
-[3] get symmetric key:
-
-```json
-    URL: http://hostname:port_num/symmetric_key.php
-    
-    JSON:
-    {
-        "timestamp":"xxxxxxx"
-    }
-```
-
-[4] signup:
-```json
-    URL: http://hostname:port_num/signup_service.php
+    URL: http://hostname:port_num/security_box_api/signup_service.php
     
     JSON:
     {
@@ -155,21 +144,22 @@ Symmetric Encryption:
     }
 ```
 
-[5] login:
+[3] login:`[asymmetric encryption transmission]`
 ```json
-    URL: http://hostname:port_num/login_service.php
+    URL: http://hostname:port_num/security_box_api/login_service.php
     
     JSON:
     {
         "username":"xxx@xxx",
         "password_hash":"xxxxxxxx",
+        "client_rsa_public_key":"xxxxxxxx",
         "timestamp":"xxxxxx"
     }
 ```
 
-[6] logout:
+[4] logout:`[symmetric encryption transmission]`
 ```json
-    URL: http://hostname:port_num/logout_service.php
+    URL: http://hostname:port_num/security_box_api/logout_service.php
 
     JSON:
     {
@@ -178,9 +168,9 @@ Symmetric Encryption:
     }
 ```
 
-[7] list:
+[5] list:`[symmetric encryption transmission]`
 ```json
-    URL: http://hostname:port_num/list_service.php
+    URL: http://hostname:port_num/security_box_api/list_service.php
     
     JSON:
     {
@@ -189,9 +179,9 @@ Symmetric Encryption:
     }
 ```
 
-[8] remove:
+[6] remove:`[symmetric encryption transmission]`
 ```json
-    URL: http://hostname:port_num/remove_service.php
+    URL: http://hostname:port_num/security_box_api/remove_service.php
 
     JSON:
     {
@@ -201,9 +191,9 @@ Symmetric Encryption:
     }
 ```
 
-[9] rename:
+[7] rename:`[symmetric encryption transmission]`
 ```json
-    URL: http://hostname:port_num/rename_service.php
+    URL: http://hostname:port_num/security_box_api/rename_service.php
 
     JSON:
     {
@@ -214,9 +204,24 @@ Symmetric Encryption:
     }
 ```
 
-[10] get file encrypt nonce:
+[8] generate file encrypt nonce:`[symmetric encryption transmission]`
+
+    Note: Before executing "upload", user should apply this operation.
 ```json
-    URL: http://hostname:port_num/file_encrypt_nonce.php
+    URL: http://hostname:port_num/security_box_api/generate_file_encrypt_nonce_service.php
+    
+    JSON:
+    {
+        "username":"xxx@xxx",
+        "timestamp":"xxxxxxx"
+    }
+```
+
+[9] query file encrypt nonce:`[symmetric encryption transmission]`
+
+    Note: Before executing "download", user should apply this operation.
+```json
+    URL: http://hostname:port_num/security_box_api/file_encrypt_nonce.php
     
     JSON:
     {
@@ -226,21 +231,28 @@ Symmetric Encryption:
     }
 ```
 
-[11] upload file:
+[10] upload file:`[symmetric encryption transmission]`
+
+    Note: [1] File content is encrypted separately, 
+              and file encryption symmetric private key = password_plaintext + nonce.
+          [2] Before executing this operation, need execute "generate file encrypt nonce" operation.
+        
 ```json
-    URL: http://hostname:port_num/upload_file_service.php
+    URL: http://hostname:port_num/security_box_api/upload_file_service.php
 
     {
         "username":"xxx@xxx",
         "filename":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data.",
+        "file_encrypt_nonce":"xxxxxxx",
         "timestamp":"xxxxxx"
     }
 ```
 
-[12] download file:
+[11] download file:`[symmetric encryption transmission]`
+
+     Note: Before executing this operation, need execute "query file encrypt nonce" operation.
 ```json
-    URL: http://hostname:port_num/file.php
+    URL: http://hostname:port_num/security_box_api/file.php
 
     {
         "username":"xxx@xxx",
@@ -253,7 +265,7 @@ Symmetric Encryption:
 
 ###### Response json format(Server --> Client):
 
-[1] get server rsa public key:
+[1] query server rsa public key:`[plaintext transmission]`
 ```json
     {
         "server_rsa_public_key":"xxxxxx",
@@ -263,26 +275,7 @@ Symmetric Encryption:
     }
 ```
 
-[2] upload client rsa public key:
-```json
-    {
-        "timestamp":"xxxxxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxxx"
-    }
-```
-
-[3] get symmetric key:
-```json
-    {
-        "symmetric_key":"xxxxxxx",
-        "timestamp":"xxxxxxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxxx"
-    }
-```
-
-[4] signup:
+[2] signup:`[asymetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -292,7 +285,19 @@ Symmetric Encryption:
     }
 ```
 
-[5] login:
+[3] login:`[asymmetric encryption transmission]`
+```json
+    {
+        "username":"xxx@xxx",
+        "session_id":"xxxxxxx",
+        "symmetric_key":"xxxxxxxxxx",
+        "timestamp":"xxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxx"
+    }
+```
+
+[4] logout:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -302,17 +307,7 @@ Symmetric Encryption:
     }
 ```
 
-[6] logout:
-```json
-    {
-        "username":"xxx@xxx",
-        "timestamp":"xxxxxx",
-        "error_code":"XXX",
-        "error_message":"xxxxxx"
-    }
-```
-
-[7] list:
+[5] list:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -327,7 +322,7 @@ Symmetric Encryption:
     }
 ```
 
-[8] remove:
+[6] remove:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -338,7 +333,7 @@ Symmetric Encryption:
     }
 ```
 
-[9] rename:
+[7] rename:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -350,7 +345,18 @@ Symmetric Encryption:
     }
 ```
 
-[10] get file encrypt nonce:
+[8] generate file encrypt nonce:`[symmetric encryption transmission]`
+```json
+    {
+        "username":"xxx@xxx",
+        "file_encrypt_nonce":"xxxxx",
+        "timestamp":"xxxxxxx",
+        "error_code":"XXX",
+        "error_message":"xxxxxxxx"
+    }
+```
+
+[9] query file encrypt nonce:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -362,7 +368,7 @@ Symmetric Encryption:
     }
 ```
 
-[11] upload file:
+[10] upload file:`[symmetric encryption transmission]`
 ```json
     {
         "username":"xxx@xxx",
@@ -374,13 +380,14 @@ Symmetric Encryption:
     }
 ```
 
-[12] download file:
+[11] download file:`[symmetric encryption transmission]`
+
+     Note: The encrypted file content is attached separately.
 ```json
     {
         "username":"xxx@xxx",
         "filename":"xxxxxx",
         "filesize":"xxxxxx",
-        "encrypted_file":"The content of the encrypted file data.",
         "timestamp":"xxxxxx",
         "error_code":"XXX",
         "error_message":"xxxxxx"
@@ -392,24 +399,23 @@ Symmetric Encryption:
 
 * "0": no error.
 * "1": server cannot answer server's rsa public key.
-* "2": server cannot get client rsa public key.
-* "3": server cannot answer symmetric key.
-* "4": username conflict.
-* "5": server cannot create user folder.
-* "6": server cannot register user info into db.
-* "7": server cannot find username.
-* "8": password_hash and username do not match.
+* "2": username conflict.
+* "3": server cannot create user folder.
+* "4": server cannot register user info into db.
+* "5": server cannot find username.
+* "6": password_hash and username do not match.
+* "7": server cannot get client rsa public key.
+* "8": server cannot generate symmetric key.
 * "9": you have been login.
 * "10": cannot logout.
-* "11": you have been logout.
-* "12": server cannot retrieve filename list.
-* "13": server cannot find file based on given username and filename.
-* "14": server cannot remove file.
-* "15": filename conflict.
-* "16": server cannot rename file.
-* "17": server cannot retrieve file encrypt nonce based on given username and filename.
+* "11": server cannot retrieve filename list.
+* "12": server cannot find file based on given username and filename.
+* "13": server cannot remove file.
+* "14": filename conflict.
+* "15": server cannot rename file.
+* "16": server cannot generate file encrypt nonce.
+* "17": server cannot answer file encrypt nonce based on given username and filename.
 * "18": unknown error.
-
 
 
 
@@ -424,15 +430,13 @@ CREATE TABLE User (
     signup_time TIME NOT NULL
 )ENGINE=INNODB;
 ```
+
 [2] Session:
 ```sql
 CREATE TABLE Session (
+    session_id VARCHAR(100) NOT NULL PRIMARY KEY,
     username VARCHAR(70) NOT NULL,
-    login_date DATE NOT NULL,
-    login_time TIME NOT NULL,
-    logout_date DATE,
-    logout_time TIME,
-    PRIMARY KEY(username, login_date, login_time),
+    symmetric_key VARCHAR(256) NOT NULL,
     FOREIGN KEY(username) REFERENCES User(username)
 )ENGINE=INNODB;
 ```
@@ -442,7 +446,7 @@ CREATE TABLE Session (
 CREATE TABLE File (
     username VARCHAR(70) NOT NULL,
     filename VARCHAR(100) NOT NULL,
-    encrypt_nonce VARCHAR(100) NOT NULL,
+    file_encrypt_nonce VARCHAR(256) NOT NULL,
     modified_date DATE NOT NULL,
     modified_time TIME NOT NULL,
     PRIMARY KEY(username, filename),
