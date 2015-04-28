@@ -97,7 +97,7 @@ Symmetric Encryption:
         "signature":"xxxxx",
         "DSA_public_key":"xxxxxx",
         "symmetric_encrypted_operation_package":"xxxxxx",
-        "symmetric_encrypted_file":"[optional]xxxxxxxx"
+        "symmetric_encrypted_file":"[optional]xxxxxxxx",
         "security_error_code":"XXX",
         "security_error_message":"xxxxxxx"
     }
