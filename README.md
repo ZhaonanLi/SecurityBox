@@ -37,7 +37,7 @@ Time-Server:
     (1) length = 256.
 [2] Timestamp: 
     (1) format is number sequence.
-    (2) time window threshold: 60 second.
+    (2) time window threshold: 60 seconds.
 ````
 
 ##### Operation:
