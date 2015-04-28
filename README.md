@@ -34,6 +34,7 @@ Time-Server:
 ##### Security Arguments:
 ```json
 [1] Symmetric encryption nonce: length = 256.
+[2] Timestamp: format is number sequence.
 ````
 
 ##### Operation:
