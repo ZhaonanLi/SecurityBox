@@ -26,7 +26,7 @@ Time-Server:
 ##### Security Algorithms:
 ```json
 [1] Asymmetric encryption scheme: RSA.
-[2] symmetric encryption scheme: AES.
+[2] symmetric encryption scheme: AES(CBC).
 [3] Hash: SHA-3.
 [4] Digital Signature: DSA.
 ```
@@ -34,7 +34,7 @@ Time-Server:
 ##### Security Arguments:
 ```json
 [1] Symmetric encryption nonce: 
-    (1) length = 256.
+    (1) length = 32.
 [2] Timestamp: 
     (1) format is number sequence.
     (2) time window threshold: 60 seconds.
