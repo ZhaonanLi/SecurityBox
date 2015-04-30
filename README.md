@@ -74,6 +74,12 @@ Host:
     }
 ```
 
+##### Plaintext error code --> error message:
+```json
+"0": no error
+"1": request error
+```
+
 ##### Security package format:
 ###### Request json format(Client --> Server):
 
