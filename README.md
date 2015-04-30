@@ -58,6 +58,22 @@ Host:
 [11] download file
 ```
 
+##### Plaintext package format:
+###### Request json format(Client --> Server):
+
+```json
+    {
+        "operation_package":"xxxxxxxx"
+    }
+```
+###### Response json format(Server --> Client):
+
+```json
+    {
+        "operation_package":"xxxxxxxx"
+    }
+```
+
 ##### Security package format:
 ###### Request json format(Client --> Server):
 
