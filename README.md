@@ -21,6 +21,9 @@ Database:
 Time-Server: 
     [1] Host: NTP
     [2] PORT: 123
+Host:
+    [1] Hostname: 104.236.9.176
+    [2] port_num: 9090
 ```
 
 ##### Security Algorithms:
