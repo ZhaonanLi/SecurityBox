@@ -22,9 +22,11 @@ void generate_key_and_iv(std::string key_filename, std::string iv_filename)
     // Write key and iv into file.
     std::ofstream key_file(key_filename, std::ios::binary|std::ios::out);
     key_file.write((char*)&key, sizeof(key));
+    key_file.close();
 
     std::ofstream iv_file(iv_filename, std::ios::binary|std::ios::out);
     iv_file.write((char*)&iv, sizeof(iv));
+    iv_file.close();
 }
 
 void load_key_and_iv(std::string key_filename, std::string iv_filename,
