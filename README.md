@@ -37,8 +37,8 @@ Host:
     (1) format: 
         (1) format string is "dmYHis".
         (2) format description: number sequence.
-        (3) example: "31121969210000"
-    (2) time window threshold: 60000 （which = 60 seconds）.
+        (3) example: "1430485830"
+    (2) time difference threshold: 60 （which = 60 seconds）.
 ````
 
 ##### Operation:
