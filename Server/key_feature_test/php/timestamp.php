@@ -60,3 +60,10 @@ function get_curr_ntp_timestamp()
         return "";
     }
 }
+
+function verify_timestamp($t1, $t2)
+{
+    $diff_threshold = 60000;
+    $diff = abs((int)$t1 - (int)t2);
+    return $diff <= $diff_threshold;
+}
