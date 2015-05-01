@@ -108,7 +108,6 @@ int main()
 
     // Encrypt.
     std::string mac_1_base64;
-    std::string cipher_base64;
     CryptoPP::StringSource str_source (
         mac_1,
         true,
@@ -121,7 +120,6 @@ int main()
 
     // Decrypt.
     std::string raw_mac_1;
-    std::string raw_cipher;
     CryptoPP::StringSource(
         mac_1_base64,
         true,
@@ -130,6 +128,7 @@ int main()
         )
     );
     std::cout << "The raw_mac_1 = " << raw_mac_1 << std::endl;
+    mac_1 = raw_mac_1;
 
 
     // Verify HMAC.
@@ -138,15 +137,18 @@ int main()
     else std::cout << "not verified." << std::endl;
 
 
-    // Generate HMAC.
-    std::string message_2 = "hello cat.";
-    std::string mac_2 = generate_HMAC(message_2, key);
-    std::cout << "message_2 = " << message_2 << std::endl;
-    std::cout << "mac_2 = " << mac_2 << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "----------------------------------------" << std::endl;
 
-    // Verify HMAC.
-    bool is_valid_2 = verify_HMAC(message_2, key, mac_1);
-    if (is_valid_2) std::cout << "verified." << std::endl;
-    else std::cout << "not verified." << std::endl;
+    // // Generate HMAC.
+    // std::string message_2 = "hello cat.";
+    // std::string mac_2 = generate_HMAC(message_2, key);
+    // std::cout << "message_2 = " << message_2 << std::endl;
+    // std::cout << "mac_2 = " << mac_2 << std::endl;
+    //
+    // // Verify HMAC.
+    // bool is_valid_2 = verify_HMAC(message_2, key, mac_1);
+    // if (is_valid_2) std::cout << "verified." << std::endl;
+    // else std::cout << "not verified." << std::endl;
 
 }

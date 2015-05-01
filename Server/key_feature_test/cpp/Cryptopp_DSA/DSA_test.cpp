@@ -94,6 +94,51 @@ int main()
     std::cout << "mac = " << mac << ", length = " << mac.size() << std::endl;
     std::cout << "signature = " << signature << ", length = " << signature.size() << std::endl;
 
+    // Encrypt.
+    std::string mac_base64;
+    StringSource(
+        mac,
+        true,
+        new Base64Encoder(
+            new StringSink(mac_base64),
+            false
+        )
+    );
+    std::string signature_base64;
+    StringSource(
+        signature,
+        true,
+        new Base64Encoder(
+            new StringSink(signature_base64),
+            false
+        )
+    );
+    std::cout << "mac base64 = " << mac_base64 << std::endl;
+    std::cout << "signature base64 = " << signature_base64 << std::endl;
+
+    // Decrypt.
+    std::string raw_mac;
+    StringSource(
+        mac_base64,
+        true,
+        new Base64Decoder(
+            new StringSink(raw_mac)
+        )
+    );
+    std::string raw_signature;
+    StringSource(
+        signature_base64,
+        true,
+        new Base64Decoder(
+            new StringSink(raw_signature)
+        )
+    );
+    mac = raw_mac;
+    signature = raw_signature;
+
+
+
+
     // Verify.
     bool is_valid = verify(mac, signature, public_key_filename);
     if (is_valid) std::cout << "verified." << std::endl;
