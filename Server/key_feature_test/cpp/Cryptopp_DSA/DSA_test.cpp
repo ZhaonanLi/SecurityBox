@@ -136,9 +136,6 @@ int main()
     mac = raw_mac;
     signature = raw_signature;
 
-
-
-
     // Verify.
     bool is_valid = verify(mac, signature, public_key_filename);
     if (is_valid) std::cout << "verified." << std::endl;

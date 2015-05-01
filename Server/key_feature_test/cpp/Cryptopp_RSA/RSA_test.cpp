@@ -60,17 +60,14 @@ std::string decrypt(std::string cipher)
 
 int main()
 {
-    // std::cout << "Generate key pair and write them into files." << std::endl;
-    // generate_rsa_private_public_key_pair();
-    //
-    // std::string plaintext = "This is a RSA test.";
-    // std::string cipher = encrypt(plaintext);
-    // std::cout << "The plaintext = " << plaintext << ", length = " << plaintext.size() << std::endl;
-    // std::cout << "The cipher = " << cipher << ", length = " << cipher.size() << std::endl;
+    std::cout << "Generate key pair and write them into files." << std::endl;
+    generate_rsa_private_public_key_pair();
 
-    std::string cipher = "O0MQRIC3W7c4jh75tvZC1sibL8GBwLbhlt8sy1HlXrh+HrJgyHpUBKNHXGIV/AXXgm2B4z7b\n";
-    cipher += "YSO3/txC07u19sz4H25BQUZz6j1osvNb09CB4deMrE3lI0nzMu34985M029DwligHW0Wz2nv\n";
-    cipher += "cS6ZAxUdEno2WpGcvNONY21TVWQ=\n";
+    std::string plaintext = "This is a RSA test.";
+    std::string cipher = encrypt(plaintext);
+    std::cout << "The plaintext = " << plaintext << ", length = " << plaintext.size() << std::endl;
+    std::cout << "The cipher = " << cipher << ", length = " << cipher.size() << std::endl;
+
     std::string decoded_plaintext = decrypt(cipher);
     std::cout << "The decoded_plaintext = " << decoded_plaintext << ", length = " << decoded_plaintext.size() << std::endl;
 

@@ -1,4 +1,4 @@
-<?
+<?php
 function get_curr_timestamp()
 {
     date_default_timezone_set('UTC');
