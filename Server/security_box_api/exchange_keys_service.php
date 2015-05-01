@@ -20,7 +20,7 @@ else
     $rep_json_arr = array();
     if (!$is_valid_timestamp)
     {
-        $rep_json_arr["timestamp"] = $curr_timestamp;
+        $rep_json_arr["timestamp"] = (int)$curr_timestamp;
         $rep_json_arr["error_code"] = 4;
 
         echo json_encode($rep_json_arr);
@@ -41,29 +41,59 @@ else
     $client_dsa_public_key_filename = "./security_file/client_dsa_public_key.txt";
     $client_dsa_public_key_file = fopen($client_dsa_public_key_filename, "w") or
                                   die("Cannot open the file $client_dsa_public_key_filename");
-    
+    fwrite($client_dsa_public_key_file, $client_dsa_public_key);
+    fclose($client_dsa_public_key_file);
 
 
     // Read server rsa public key from file.
-    $server_rsa_pub_key_filename = "./security_file/server_rsa_public_key.txt";
-    $server_rsa_pub_key_file = fopen($server_rsa_pub_key_filename, "r") or
-                               die("Cannot open server rsa public key file.");
-    $server_rsa_public_key = fread($server_rsa_pub_key_file,
-                                   filesize($server_rsa_pub_key_filename));
+    $server_rsa_public_key_filename = "./security_file/server_rsa_public_key.txt";
+    $server_rsa_public_key_file = fopen($server_rsa_public_key_filename, "r") or
+                                  die("Cannot open server rsa public key file.");
+
+    $server_rsa_public_key = fread(
+        $server_rsa_public_key_file,
+        filesize($server_rsa_public_key_filename)
+    );
+
+    // Read server dsa public key from file.
+    $server_dsa_public_key_filename = "./security_file/server_dsa_public_key.txt";
+    $server_dsa_public_key_file = fopen($server_dsa_public_key_filename, "r") or
+                                  die("Cannot open server dsa public key file.");
+
+    $server_dsa_public_key = fread(
+        $server_dsa_public_key_file,
+        filesize($server_dsa_public_key_filename)
+    );
 
     $rep_json_arr = array();
     if ($server_rsa_public_key)
     {
         $rep_json_arr["server_rsa_public_key"] = $server_rsa_public_key;
-        $rep_json_arr["timestamp"] = (string)$curr_timestamp;
-        $rep_json_arr["error_code"] = "0";
+        $rep_json_arr["server_dsa_public_key"] = $server_dsa_public_key;
+        $rep_json_arr["timestamp"] = (int)$curr_timestamp;
+        $rep_json_arr["error_code"] = 0;
     }
     else
     {
-        $rep_json_arr["timestamp"] = (string)$curr_timestamp;
-        $rep_json_arr["error_code"] = "1";
-        $rep_json_arr["error_message"] = "server cannot answer server's rsa public key";
+        $rep_json_arr["timestamp"] = (int)$curr_timestamp;
+        $rep_json_arr["error_code"] = 1;
     }
 
     echo json_encode($rep_json_arr);
+
+    /*
+    Request:
+    {
+        "client_rsa_public_key":"xxxxxx",
+        "client_dsa_public_key":"xxxxxx",
+        "timestamp":xxxxxxx
+    }
+    Response:
+    {
+        "server_rsa_public_key":"xxxxxxx",
+        "server_dsa_public_key":"xxxxxxx",
+        "timestamp":xxxxx,
+        "error_code":XXX
+    }
+    */
 }
