@@ -136,8 +136,8 @@ return;
 void CCipherSuite::GenerateMessageKey()
 {		
 	AutoSeededRandomPool prng;
-	message_aes_key_=SecByteBlock(AES::DEFAULT_KEYLENGTH);
-	prng.GenerateBlock( message_aes_key_, message_aes_key_.size() );
+
+	prng.GenerateBlock( message_aes_key_, sizeof(message_aes_key_) );
 	prng.GenerateBlock( message_aes_iv_, sizeof(message_aes_iv_) );
 	
 	string encoded;
@@ -162,7 +162,8 @@ void CCipherSuite::AES_EncryptMessage( string plain )
 	try
 	{
 		CBC_Mode< AES >::Encryption e;
-		e.SetKeyWithIV( message_aes_key_, message_aes_key_.size(), message_aes_iv_ );
+
+		e.SetKeyWithIV( message_aes_key_, sizeof(message_aes_key_), message_aes_iv_ );
 		
 		StringSource ss( plain, true, 
 			new StreamTransformationFilter( e,
@@ -186,7 +187,7 @@ void CCipherSuite::AES_DecryptMessage(string cipher)
 	try
 	{
 		CBC_Mode< AES >::Decryption d;
-		d.SetKeyWithIV( message_aes_key_, message_aes_key_.size(), message_aes_iv_ );
+		d.SetKeyWithIV( message_aes_key_, sizeof(message_aes_key_), message_aes_iv_ );
 		
 		StringSource ss( cipher, true, 
 			new StreamTransformationFilter( d,
@@ -203,6 +204,20 @@ void CCipherSuite::AES_DecryptMessage(string cipher)
 	return;
 }
 
+void CCipherSuite::GetMessageKey( byte key[])
+{
+
+	memcpy(key,message_aes_key_,AES::DEFAULT_KEYLENGTH);
+	return;
+
+}
+
+void CCipherSuite::GetMessageIv(byte iv[])
+{
+	memcpy(iv,message_aes_iv_,AES::BLOCKSIZE);
+	return;
+
+}
 
 
 void CCipherSuite::GenerateSHAkey()
@@ -379,16 +394,24 @@ void CCipherSuite::SetServerRSApublicKey(RSA::PublicKey publickey)
 	return;
 }
 	
-void CCipherSuite::SetMessageKey(SecByteBlock key, byte iv[])
+void CCipherSuite::SetMessageKey(byte messagekey[], byte messageiv[])
 {
-	message_aes_key_=key;
-	memcpy(file_aes_iv_,iv,AES::BLOCKSIZE*sizeof(byte));
+
+	memcpy(message_aes_key_,messagekey,AES::DEFAULT_KEYLENGTH);
+	memcpy(message_aes_iv_,messageiv,AES::BLOCKSIZE);
 	return;
 }
 	
-SecByteBlock CCipherSuite::GetSHAkey()
+string CCipherSuite::GetSHAkey()
 {
-	return sha_key_;
+	string encoded;
+	encoded.erase();
+	StringSource ss1(sha_key_, sha_key_.size(), true,
+		new HexEncoder(
+        new StringSink(encoded)
+		) // HexEncoder
+		); // StringSource
+	return encoded;
 }
 	
 string CCipherSuite::GetHmac()
