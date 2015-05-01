@@ -1,11 +1,13 @@
 // This file for test HMAC.
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <fstream>
 
 #include <cryptopp/osrng.h>
 #include <cryptopp/hmac.h>
 #include <cryptopp/sha.h>
+#include <cryptopp/base64.h>
 
 using namespace CryptoPP;
 
@@ -85,11 +87,50 @@ int main()
     byte key[key_len];
     load_key(key_filename, key);
 
+    std::stringstream key_ss;
+    std::string key_s;
+    for (int i = 0; i < sizeof(key); i ++)
+    {
+        key_ss << (int)key[i];
+        if (i != sizeof(key) - 1)
+        {
+            key_ss << ",";
+        }
+    }
+    key_s = key_ss.str();
+    std::cout << "The key s = " << key_s << std::endl;
+
     // Generate HMAC.
-    std::string message_1 = "hello world.";
+    std::string message_1 = "This is a HAMC test.";
     std::string mac_1 = generate_HMAC(message_1, key);
     std::cout << "message_1 = " << message_1 << std::endl;
     std::cout << "mac_1 = " << mac_1 << std::endl;
+
+    // Encrypt.
+    std::string mac_1_base64;
+    std::string cipher_base64;
+    CryptoPP::StringSource str_source (
+        mac_1,
+        true,
+        new Base64Encoder(
+            new StringSink(mac_1_base64),
+            false
+        )
+    );
+    std::cout << "The mac_1_base64 = " << mac_1_base64 << std::endl;
+
+    // Decrypt.
+    std::string raw_mac_1;
+    std::string raw_cipher;
+    CryptoPP::StringSource(
+        mac_1_base64,
+        true,
+        new Base64Decoder(
+            new StringSink(raw_mac_1)
+        )
+    );
+    std::cout << "The raw_mac_1 = " << raw_mac_1 << std::endl;
+
 
     // Verify HMAC.
     bool is_valid_1 = verify_HMAC(message_1, key, mac_1);

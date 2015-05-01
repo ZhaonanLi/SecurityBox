@@ -7,14 +7,7 @@ $curr_timestamp = get_curr_timestamp();
 // Check request method.
 if ($request_method == "GET")
 {
-    $rep_json_arr = array(
-        "operation_package" => array(
-            "timestamp" => $curr_timestamp,
-            "error_code" => "7",
-            "error_message" => "request error"
-        )
-    );
-    echo json_encode($rep_json_arr);
+    echo "";
 }
 else
 {
