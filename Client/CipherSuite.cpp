@@ -223,13 +223,13 @@ void CCipherSuite::GetMessageIv(byte iv[])
 void CCipherSuite::GenerateSHAkey()
 {
 	AutoSeededRandomPool prng;
-	sha_key_=SecByteBlock(16);
-	prng.GenerateBlock(sha_key_, sha_key_.size());
+	//sha_key_=SecByteBlock(16);
+	prng.GenerateBlock(sha_key_, sizeof(sha_key_));
 
 	string encoded;
 	// print key
 	encoded.erase();
-	StringSource ss1(sha_key_, sha_key_.size(), true,
+	StringSource ss1(sha_key_, sizeof(sha_key_), true,
 		new HexEncoder(
         new StringSink(encoded)
 		) // HexEncoder
@@ -244,7 +244,7 @@ void CCipherSuite::SHA_HMAC( string message )
 {
 	try
 	{
-		HMAC< SHA256 > hmac(sha_key_, sha_key_.size());
+		HMAC< SHA256 > hmac(sha_key_, sizeof(sha_key_));
 	
 		StringSource ss2(message, true, 
 			new HashFilter(hmac,
@@ -270,11 +270,13 @@ void CCipherSuite::SHA_HMAC( string message )
 }
 
 
-bool CCipherSuite::SHA_Verify( string message, string mac, SecByteBlock key )
+bool CCipherSuite::SHA_Verify( string message, string mac, byte key[] )
 {
-	try
+		try
 	{
-		HMAC< SHA256 > hmac(key, key.size());
+		byte sha_key[16];
+	    memcpy(sha_key,key,16);
+		HMAC< SHA256 > hmac(sha_key, sizeof(sha_key));
 		const int flags = HashVerificationFilter::THROW_EXCEPTION | HashVerificationFilter::HASH_AT_END;
 		StringSource(message + mac, true, 
 			new HashVerificationFilter(hmac, NULL, flags)
@@ -402,9 +404,9 @@ void CCipherSuite::SetMessageKey(byte messagekey[], byte messageiv[])
 	return;
 }
 	
-string CCipherSuite::GetSHAkey()
+void CCipherSuite::GetSHAkey(byte sha_key[])
 {
-	string encoded;
+/*	string encoded;
 	encoded.erase();
 	StringSource ss1(sha_key_, sha_key_.size(), true,
 		new HexEncoder(
@@ -412,6 +414,10 @@ string CCipherSuite::GetSHAkey()
 		) // HexEncoder
 		); // StringSource
 	return encoded;
+	*/
+
+	memcpy(sha_key,sha_key_,16);
+	return;
 }
 	
 string CCipherSuite::GetHmac()

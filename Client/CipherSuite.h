@@ -65,8 +65,8 @@ public:
 
 	void GenerateSHAkey();
 	void SHA_HMAC(string message);
-	bool SHA_Verify(string message, string mac, SecByteBlock key);
-	string GetSHAkey();
+	bool SHA_Verify(string message, string mac, byte key[]);
+	void GetSHAkey(byte sha_key[]);
 	string GetHmac();
 
 	void GenerateDSAkey();
@@ -75,6 +75,7 @@ public:
 	void SetServerDSApublicKey(DSA::PublicKey key);
 	DSA::PublicKey GetDSApublicKey();
 	string GetSignature();
+
 
 private:
 	string Encoded(string str);
@@ -100,7 +101,7 @@ private:
 	byte message_aes_key_[AES::DEFAULT_KEYLENGTH];
 	byte message_aes_iv_[ AES::BLOCKSIZE ];
 	
-	SecByteBlock sha_key_;
+	byte sha_key_[16];
 	string sha_hmac_;
 
 	DSA::PrivateKey user_dsa_private_key_;
