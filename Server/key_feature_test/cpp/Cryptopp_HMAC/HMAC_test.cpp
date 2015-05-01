@@ -76,69 +76,102 @@ bool verify_HMAC(std::string message, byte* key, std::string mac)
     }
 }
 
-int main()
+void test(std::string message, std::string mac_base64)
 {
-    std::string key_filename = "./hmac_key.txt";
-    std::cout << "Generate key." << std::endl;
-    generate_key(key_filename);
-
-    std::cout << "Load key from file." << std::endl;
-    int key_len = 16;
-    byte key[key_len];
-    load_key(key_filename, key);
-
-    std::stringstream key_ss;
-    std::string key_s;
-    for (int i = 0; i < sizeof(key); i ++)
-    {
-        key_ss << (int)key[i];
-        if (i != sizeof(key) - 1)
-        {
-            key_ss << ",";
-        }
-    }
-    key_s = key_ss.str();
-    std::cout << "The key s = " << key_s << std::endl;
-
-    // Generate HMAC.
-    std::string message_1 = "This is a HAMC test.";
-    std::string mac_1 = generate_HMAC(message_1, key);
-    std::cout << "message_1 = " << message_1 << std::endl;
-    std::cout << "mac_1 = " << mac_1 << std::endl;
-
-    // Encrypt.
-    std::string mac_1_base64;
-    CryptoPP::StringSource str_source (
-        mac_1,
-        true,
-        new Base64Encoder(
-            new StringSink(mac_1_base64),
-            false
-        )
-    );
-    std::cout << "The mac_1_base64 = " << mac_1_base64 << std::endl;
-
-    // Decrypt.
-    std::string raw_mac_1;
+    // Decode message base64.
+    std::string raw_mac;
     CryptoPP::StringSource(
-        mac_1_base64,
+        mac_base64,
         true,
         new Base64Decoder(
-            new StringSink(raw_mac_1)
+            new StringSink(raw_mac)
         )
     );
-    std::cout << "The raw_mac_1 = " << raw_mac_1 << std::endl;
-    mac_1 = raw_mac_1;
 
+    std::cout << "The raw mac = " << raw_mac << std::endl;
 
-    // Verify HMAC.
-    bool is_valid_1 = verify_HMAC(message_1, key, mac_1);
-    if (is_valid_1) std::cout << "verified." << std::endl;
-    else std::cout << "not verified." << std::endl;
+    byte key[16] = {10,178,70,88,118,233,175,16,54,191,212,178,31,107,201,187};
 
+    // int key_index = 0;
+    // stringstream ss(key_str);
+    // string token;
+    // while (getline(ss,token, ','))
+    // {
+    //     key[key_index] = (byte)(token);
+    //     key_index ++;
+    // }
 
-    std::cout << "----------------------------------------" << std::endl;
-    std::cout << "----------------------------------------" << std::endl;
+    bool is_valid = verify_HMAC(message, key, raw_mac);
+    if (is_valid) std::cout << "VERIFIED." << std::endl;
+    else std::cout << "NOT VERIFIED." << std::endl;
+}
+
+int main()
+{
+    std::string message = "This is a HAMC test.";
+    std::string mac_base64 = "pXDkZUlU2vnGN0JnMgWvq8Q1vl6GElnixqNIDPY9lAM=";
+    test(message, mac_base64);
+    // std::string key_filename = "./hmac_key.txt";
+    // std::cout << "Generate key." << std::endl;
+    // generate_key(key_filename);
+    //
+    // std::cout << "Load key from file." << std::endl;
+    // int key_len = 16;
+    // byte key[key_len];
+    // load_key(key_filename, key);
+    //
+    // std::stringstream key_ss;
+    // std::string key_s;
+    // for (int i = 0; i < sizeof(key); i ++)
+    // {
+    //     key_ss << (int)key[i];
+    //     if (i != sizeof(key) - 1)
+    //     {
+    //         key_ss << ",";
+    //     }
+    // }
+    // key_s = key_ss.str();
+    // std::cout << "The key s = " << key_s << std::endl;
+    //
+    // // Generate HMAC.
+    // std::string message_1 = "This is a HAMC test.";
+    // std::string mac_1 = generate_HMAC(message_1, key);
+    // std::cout << "message_1 = " << message_1 << std::endl;
+    // std::cout << "mac_1 = " << mac_1 << std::endl;
+    //
+    // // Encrypt.
+    // std::string mac_1_base64;
+    // CryptoPP::StringSource str_source (
+    //     mac_1,
+    //     true,
+    //     new Base64Encoder(
+    //         new StringSink(mac_1_base64),
+    //         false
+    //     )
+    // );
+    // std::cout << "The mac_1_base64 = " << mac_1_base64 << std::endl;
+    //
+    // // Decrypt.
+    // std::string raw_mac_1;
+    // CryptoPP::StringSource(
+    //     mac_1_base64,
+    //     true,
+    //     new Base64Decoder(
+    //         new StringSink(raw_mac_1)
+    //     )
+    // );
+    // std::cout << "The raw_mac_1 = " << raw_mac_1 << std::endl;
+    // mac_1 = raw_mac_1;
+    //
+    //
+    // // Verify HMAC.
+    // bool is_valid_1 = verify_HMAC(message_1, key, mac_1);
+    // if (is_valid_1) std::cout << "verified." << std::endl;
+    // else std::cout << "not verified." << std::endl;
+    //
+    //
+    // std::cout << "----------------------------------------" << std::endl;
+    // std::cout << "----------------------------------------" << std::endl;
 
     // // Generate HMAC.
     // std::string message_2 = "hello cat.";

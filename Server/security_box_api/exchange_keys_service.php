@@ -15,18 +15,34 @@ else
     $post_json_arr = json_decode($raw_post_body, true);
 
     $client_timestamp = $post_json_arr["timestamp"];
-    $is_valid_timestamp = verify_timestamp($curr_timestamp, (int)$client_timestamp);
+    $is_valid_timestamp = verify_timestamp($curr_timestamp, $client_timestamp);
 
     $rep_json_arr = array();
     if (!$is_valid_timestamp)
     {
         $rep_json_arr["timestamp"] = $curr_timestamp;
-        $rep_json_arr["error_code"] = "4";
-        $rep_json_arr["error_message"] = "timestamp does not satisfy.";
+        $rep_json_arr["error_code"] = 4;
 
         echo json_encode($rep_json_arr);
         return;
     }
+
+    $client_rsa_public_key = $post_json_arr["client_rsa_public_key"];
+    $client_dsa_public_key = $post_json_arr["client_dsa_public_key"];
+
+    // Write client rsa public key to file.
+    $client_rsa_public_key_filename = "./security_file/client_rsa_public_key.txt";
+    $client_rsa_public_key_file = fopen($client_rsa_public_key_filename, "w") or
+                                  die("Cannot open the file $client_rsa_public_key_filename");
+    fwrite($client_rsa_public_key_file, $client_rsa_public_key);
+    fclose($client_rsa_public_key_file);
+
+    // Write client dsa public key to file.
+    $client_dsa_public_key_filename = "./security_file/client_dsa_public_key.txt";
+    $client_dsa_public_key_file = fopen($client_dsa_public_key_filename, "w") or
+                                  die("Cannot open the file $client_dsa_public_key_filename");
+    
+
 
     // Read server rsa public key from file.
     $server_rsa_pub_key_filename = "./security_file/server_rsa_public_key.txt";
@@ -41,7 +57,6 @@ else
         $rep_json_arr["server_rsa_public_key"] = $server_rsa_public_key;
         $rep_json_arr["timestamp"] = (string)$curr_timestamp;
         $rep_json_arr["error_code"] = "0";
-        $rep_json_arr["error_message"] = "no error";
     }
     else
     {
