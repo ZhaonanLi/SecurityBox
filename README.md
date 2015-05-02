@@ -1,6 +1,6 @@
 ## SecurityBox
 ##### UI Design:
-![SecurityBox UI Design](https://github.com/ZhaonanLi/SecurityBox/blob/master/client_ui_part/SecurityBox_UI_Design.png)
+![SecurityBox UI Design](https://github.com/ZhaonanLi/SecurityBox/blob/master/client_ui_part/NewSecurityBoxUI.png
 ##### System:
 * Language:
 ```json
