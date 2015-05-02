@@ -16,3 +16,13 @@
         (1) STL
         (2) Crypto++
 ```
+* Database:
+```json
+    [1] SQLite.
+```
+##### Security:
+* Algorithm:
+```json
+    [1] Encryption: AES(CBC).
+    [2] Hash: SHA256-HMAC.
+```
