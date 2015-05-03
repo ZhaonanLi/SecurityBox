@@ -73,5 +73,5 @@ if __name__ == "__main__":
 
     delete_res = file_delete(client, "/good_file_good_good.txt")
     print delete_res
-    
+
     print "Program is end."

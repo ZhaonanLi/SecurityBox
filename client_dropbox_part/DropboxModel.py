@@ -1,0 +1,190 @@
+# Dropbox Model.
+import os
+import time
+import datetime
+import webbrowser
+
+import dropbox
+
+import SecurityModel
+from DropboxError import NotLoginError, \
+    FilenameConflictError, FileNotExistError, FileHmacNotVerifyError,\
+    TimestampVerifyError
+
+
+def timestamp_verify(server_time_str):
+    main_part_start_index = server_time_str.find(',') + 2
+    main_part_end_index = server_time_str.find('+') - 2
+    server_time_str = server_time_str[main_part_start_index:main_part_end_index + 1]
+
+    date_format = "%d %b %Y %H:%M:%S"
+    server_timestamp = time.mktime(
+        datetime.datetime.strptime(server_time_str, date_format).timetuple()
+        )
+
+    client_timestamp = time.time() + 10000
+
+    timestamp_threshold = 6000
+    if abs(client_timestamp - server_timestamp) <= timestamp_threshold:
+        return True
+    else:
+        return False
+
+
+def singleton(class_):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+    return get_instance
+
+
+@singleton
+class DropboxClient(object):
+
+    def __init__(self):
+        self.__app_key = "3egjek2fwb862o5"
+        self.__app_secret = "umi5kqveeekp3mx"
+        self.__access_type = "app_folder"
+        self.__access_token = None
+        self.__client = None
+
+    def connect(self):
+        session = dropbox.session.DropboxSession(self.__app_key,
+                                                 self.__app_secret,
+                                                 self.__access_type)
+
+        request_token = session.obtain_request_token()
+
+        oauth_url = session.build_authorize_url(request_token)
+        oauth_msg = "Opening {}."
+        oauth_msg += "\nPlease make sure this application is allowed before continuing."
+        print oauth_msg.format(oauth_url)
+
+        webbrowser.open_new_tab(oauth_url)
+        raw_input("Press enter to confirm login.")
+
+        self.__access_token = session.obtain_access_token(request_token)
+        self.__client = dropbox.client.DropboxClient(session)
+
+    def list_files(self):
+        # Check user login status.
+        if self.__client is None:
+            raise NotLoginError("You should login firstly.")
+
+        filename_arr = []
+
+        hmac_prefix = "hmac_"
+        folder_metadata_map = self.__client.metadata('/')
+        contents_arr = folder_metadata_map["contents"]
+        for record in contents_arr:
+            if record["is_dir"] is False:
+                filename = record["path"].lstrip('/')
+                if len(filename) > len(hmac_prefix) and\
+                   filename[:len(hmac_prefix)] == hmac_prefix:
+                    continue
+                filename_arr.append(filename)
+
+        return filename_arr
+
+    def upload_file(self, filename):
+        # Check user login status.
+        if self.__client is None:
+            raise NotLoginError("You should login firstly.")
+
+        base_path, abs_filename = os.path.split(filename)
+        # Check filename conflict.
+        filename_arr = self.list_files()
+        if abs_filename in filename_arr:
+            raise FilenameConflictError("Dropbox has a file with the same name.")
+
+        # Encrypt file.
+        with open(filename, 'r') as f:
+            message = f.read()
+
+        encrypted_m = SecurityModel.aes_encrypt(message)
+        hmac = SecurityModel.hmac_make(encrypted_m)
+
+        # Write encrypted_m to buffer file.
+        encrypt_m_buffer_filename = "./buffer_file/encrypt_m_buffer.txt"
+        with open(encrypt_m_buffer_filename, 'w') as f:
+            f.write(encrypted_m)
+
+        # Write hmac to buffer file.
+        hmac_buffer_filename = "./buffer_file/hmac_buffer.txt"
+        with open(hmac_buffer_filename, 'w') as f:
+            f.write(hmac)
+
+        # Upload encrypt message.
+        with open(encrypt_m_buffer_filename, 'r') as f:
+            upload_en_m_rep = self.__client.put_file(abs_filename, f)
+
+        # Upload hmac.
+        with open(hmac_buffer_filename, 'r') as f:
+            upload_hmac_rep = self.__client.put_file("hmac_" + abs_filename + "_.hmac", f)
+
+        if upload_en_m_rep is not None and upload_hmac_rep is not None and\
+           upload_en_m_rep["bytes"] > 0 and upload_hmac_rep["bytes"] > 0:
+
+            if timestamp_verify(upload_en_m_rep["modified"]) and \
+               timestamp_verify(upload_hmac_rep["modified"]):
+                return True
+            else:
+                raise TimestampVerifyError("Timestamp verify fail.")
+        else:
+            return False
+
+    def download_file(self, filename, download_file_path):
+        # Check user login status.
+        if self.__client is None:
+            raise NotLoginError("You should login firstly.")
+
+        # Check whether file exists.
+        filename_arr = self.list_files()
+        if filename not in filename_arr:
+            raise FileNotExistError("File not exist.")
+
+        # Download encrypted file.
+        en_file, en_metadata = self.__client.get_file_and_metadata(filename)
+        en_file_content = en_file.read()
+
+        # Download hmac file.
+        hmac_file, hmac_media = self.__client.get_file_and_metadata("hmac_" + filename + "_.hmac")
+        hmac_file_content = hmac_file.read()
+
+        # Verify hmac.
+        is_valid = SecurityModel.hmac_verify(en_file_content, hmac_file_content)
+        if not is_valid:
+            raise FileHmacNotVerifyError("Download file hmac verify fail.")
+
+        # Decrypt file.
+        de_file_content = SecurityModel.aes_decrypt(en_file_content)
+
+        download_filename = os.path.join(download_file_path, filename)
+        with open(download_filename, "w") as f:
+            f.write(de_file_content)
+
+        return True
+
+    def remove_file(self, filename):
+        # Check user login status.
+        if self.__client is None:
+            raise NotLoginError("You should login firstly.")
+
+        # Check whether file exist on cloud.
+        filename_list = self.list_files()
+        if filename not in filename_list:
+            raise FileNotExistError("File does not exist.")
+
+        # Delete file.
+        del_file_rep = self.__client.file_delete(filename)
+
+        # Delete hmac.
+        del_hmac_rep = self.__client.file_delete("hmac_" + filename + "_.hmac")
+
+        if del_file_rep["is_deleted"] and del_hmac_rep["is_deleted"]:
+            return True
+        else:
+            return False
