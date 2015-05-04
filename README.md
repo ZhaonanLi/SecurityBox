@@ -1,6 +1,5 @@
 ## SecurityBox
-##### UI Design:
-![SecurityBox UI Design](https://github.com/ZhaonanLi/SecurityBox/blob/master/client_ui_part/SecurityBoxNewUI.png)
+![SecurityBox UI Design](https://github.com/ZhaonanLi/SecurityBox/blob/master/client_ui_part/UI.png)
 ##### System:
 * Language:
 ```json
@@ -16,13 +15,18 @@
         (1) STL
         (2) Crypto++
 ```
-* Database:
-```json
-    [1] SQLite.
-```
 ##### Security:
 * Algorithm:
 ```json
     [1] Encryption: AES(CBC).
     [2] Hash: SHA256-HMAC.
+```
+##### Operations:
+```json
+    [1] login
+    [2] confirm login
+    [3] upload file
+    [4] download file
+    [5] remove file
+    [6] list file
 ```
