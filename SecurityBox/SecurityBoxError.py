@@ -1,4 +1,4 @@
-# DropboxError
+# SecurityBoxError
 
 
 class NotLoginError(Exception):

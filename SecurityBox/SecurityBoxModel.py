@@ -1,4 +1,4 @@
-# Dropbox Model.
+# SecurityBox Model.
 import os
 import time
 import datetime
@@ -7,7 +7,7 @@ import webbrowser
 import dropbox
 
 import SecurityModel
-from DropboxError import NotLoginError, \
+from SecurityBoxError import NotLoginError, \
     FilenameConflictError, FileNotExistError, FileHmacNotVerifyError,\
     TimestampVerifyError
 

@@ -3,9 +3,9 @@ import Tkinter as tk
 from tkFileDialog import askopenfilename
 from tkFileDialog import askdirectory
 
-import DropboxModel
+import SecurityBoxModel
 
-from DropboxError import NotLoginError, \
+from SecurityBoxError import NotLoginError, \
     FilenameConflictError, FileNotExistError, FileHmacNotVerifyError,\
     TimestampVerifyError
 
@@ -275,7 +275,7 @@ class SecurityBoxUI(object):
 
 if __name__ == "__main__":
     dropbox_client = None
-    dropbox_client = DropboxModel.DropboxClient()
+    dropbox_client = SecurityBoxModel.DropboxClient()
     ui = SecurityBoxUI(dropbox_client)
     dropbox_client.init_ui(ui)
     ui.run()
