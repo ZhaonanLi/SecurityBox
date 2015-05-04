@@ -1,4 +1,4 @@
-# UI Test.
+# SecurityBox.
 import Tkinter as tk
 from tkFileDialog import askopenfilename
 from tkFileDialog import askdirectory
