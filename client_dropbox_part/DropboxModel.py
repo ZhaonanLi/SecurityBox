@@ -45,29 +45,37 @@ def singleton(class_):
 class DropboxClient(object):
 
     def __init__(self):
-        self.__app_key = "3egjek2fwb862o5"
-        self.__app_secret = "umi5kqveeekp3mx"
+        self.__app_key = "1lppj6v29hvy87o"
+        self.__app_secret = "9ajyf01tokggadr"
         self.__access_type = "app_folder"
         self.__access_token = None
+        self.__session = None
+        self.__request_token = None
         self.__client = None
+        self.__ui = None
+
+    def init_ui(self, ui):
+        self.__ui = ui
 
     def connect(self):
-        session = dropbox.session.DropboxSession(self.__app_key,
-                                                 self.__app_secret,
-                                                 self.__access_type)
+        self.__session = dropbox.session.DropboxSession(
+            self.__app_key,
+            self.__app_secret,
+            self.__access_type
+        )
 
-        request_token = session.obtain_request_token()
+        self.__request_token = self.__session.obtain_request_token()
 
-        oauth_url = session.build_authorize_url(request_token)
-        oauth_msg = "Opening {}."
-        oauth_msg += "\nPlease make sure this application is allowed before continuing."
-        print oauth_msg.format(oauth_url)
+        oauth_url = self.__session.build_authorize_url(self.__request_token)
+        # oauth_msg = "Opening {}."
+        # oauth_msg += "\nPlease make sure this application is allowed before continuing."
+        # print oauth_msg.format(oauth_url)
 
         webbrowser.open_new_tab(oauth_url)
-        raw_input("Press enter to confirm login.")
 
-        self.__access_token = session.obtain_access_token(request_token)
-        self.__client = dropbox.client.DropboxClient(session)
+    def connect_confirm(self):
+        self.__access_token = self.__session.obtain_access_token(self.__request_token)
+        self.__client = dropbox.client.DropboxClient(self.__session)
 
     def list_files(self):
         # Check user login status.
@@ -104,7 +112,9 @@ class DropboxClient(object):
         with open(filename, 'r') as f:
             message = f.read()
 
+        self.__ui.show_progress_m("encrypt file by AES")
         encrypted_m = SecurityModel.aes_encrypt(message)
+        self.__ui.show_progress_m("make HMAC for file")
         hmac = SecurityModel.hmac_make(encrypted_m)
 
         # Write encrypted_m to buffer file.
@@ -118,10 +128,12 @@ class DropboxClient(object):
             f.write(hmac)
 
         # Upload encrypt message.
+        self.__ui.show_progress_m("upload encrypted file content")
         with open(encrypt_m_buffer_filename, 'r') as f:
             upload_en_m_rep = self.__client.put_file(abs_filename, f)
 
         # Upload hmac.
+        self.__ui.show_progress_m("upload file's HMAC")
         with open(hmac_buffer_filename, 'r') as f:
             upload_hmac_rep = self.__client.put_file("hmac_" + abs_filename + "_.hmac", f)
 
@@ -142,26 +154,32 @@ class DropboxClient(object):
             raise NotLoginError("You should login firstly.")
 
         # Check whether file exists.
+        self.__ui.show_progress_m("checking whether file exists")
         filename_arr = self.list_files()
         if filename not in filename_arr:
             raise FileNotExistError("File not exist.")
 
         # Download encrypted file.
+        self.__ui.show_progress_m("download encrypted file content")
         en_file, en_metadata = self.__client.get_file_and_metadata(filename)
         en_file_content = en_file.read()
 
         # Download hmac file.
+        self.__ui.show_progress_m("download file's HMAC")
         hmac_file, hmac_media = self.__client.get_file_and_metadata("hmac_" + filename + "_.hmac")
         hmac_file_content = hmac_file.read()
 
         # Verify hmac.
+        self.__ui.show_progress_m("verying file's HMAC")
         is_valid = SecurityModel.hmac_verify(en_file_content, hmac_file_content)
         if not is_valid:
             raise FileHmacNotVerifyError("Download file hmac verify fail.")
 
         # Decrypt file.
+        self.__ui.show_progress_m("decrypt file by AES")
         de_file_content = SecurityModel.aes_decrypt(en_file_content)
 
+        self.__ui.show_progress_m("write file to local")
         download_filename = os.path.join(download_file_path, filename)
         with open(download_filename, "w") as f:
             f.write(de_file_content)
@@ -174,14 +192,17 @@ class DropboxClient(object):
             raise NotLoginError("You should login firstly.")
 
         # Check whether file exist on cloud.
+        self.__ui.show_progress_m("checking cloud file folder structure")
         filename_list = self.list_files()
         if filename not in filename_list:
             raise FileNotExistError("File does not exist.")
 
         # Delete file.
+        self.__ui.show_progress_m("removing file on cloud")
         del_file_rep = self.__client.file_delete(filename)
 
         # Delete hmac.
+        self.__ui.show_progress_m("removin file's HMAC on cloud")
         del_hmac_rep = self.__client.file_delete("hmac_" + filename + "_.hmac")
 
         if del_file_rep["is_deleted"] and del_hmac_rep["is_deleted"]:
